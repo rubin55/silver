@@ -1,0 +1,47 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.rubin55</groupId>
+    <artifactId>schema-graph</artifactId>
+    <version>1</version>
+    <packaging>jar</packaging>
+    <properties>
+        <!-->Generic properties</-->
+        <java.source-target.version>1.8</java.source-target.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-->Dependency versions</-->
+        <neo4j-ogm-core.version>2.1.2</neo4j-ogm-core.version>
+
+        <!-->Plugin versions</-->
+        <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-core</artifactId>
+            <version>${neo4j-ogm-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-bolt-driver</artifactId>
+            <version>${neo4j-ogm-core.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>org.rubin55.schemagraph.Application</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

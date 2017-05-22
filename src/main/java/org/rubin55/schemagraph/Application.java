@@ -20,15 +20,12 @@ public class Application {
     public static void main(String[] args) {
         log.info("Let's do some stuff.");
 
-        // Sane logging.
+        // Sane logging black magic.
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.INFO);
 
         final SessionFactory sessionFactory = new SessionFactory("org.rubin55.schemagraph");
         Session session = sessionFactory.openSession();
-
 
         Schema schema = new Schema("Rubin");
 

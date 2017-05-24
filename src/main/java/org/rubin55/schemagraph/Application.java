@@ -57,7 +57,7 @@ public class Application {
         List<Item> work = new ArrayList<>();
 
         try {
-            File jsonFile = new File("D:/Dropbox/Incoming/ras-dependencies.json");
+            File jsonFile = new File("dependencies.json");
             Dependency[] dependencies = mapper.readValue(jsonFile, Dependency[].class);
             for (Dependency dependency : dependencies) {
                 log.info("Creating relation between " + dependency.name + " and " + dependency.referencedName);

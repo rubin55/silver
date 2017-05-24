@@ -5,4 +5,5 @@
 .vscode/
 target/
 src/main/resources/ogm.properties
+dependencies.json
 *.iml

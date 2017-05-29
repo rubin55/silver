@@ -78,13 +78,12 @@ public class Application {
             log.error("Exception thrown: " + e.getMessage());
         }
 
-        int processedItems = 0;
         int workItemTotal = work.size();
         log.info("Starting to persist item list ( with " + workItemTotal + " items in it)");
 
         int processedPartitions = 0;
         int partitionSize = 100;
-        List<List<Item>> partitions = new ArrayList<List<Item>>();
+        List<List<Item>> partitions = new ArrayList<>();
         for (int i = 0; i < work.size(); i += partitionSize) {
             partitions.add(work.subList(i, Math.min(i + partitionSize, work.size())));
         }
@@ -98,7 +97,7 @@ public class Application {
         }
     }
 
-    public static Item specialize(String type, String name) {
+    private static Item specialize(String type, String name) {
         // TODO Refactor this.
         Item item = null;
 

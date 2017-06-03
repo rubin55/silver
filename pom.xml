@@ -21,6 +21,7 @@
     </organization>
     <properties>
         <!-->Generic properties</-->
+        <project.copyright>Copyright (c) 2017 RAAF Technology bv</project.copyright>
         <project.license>MIT</project.license>
         <main.class>org.rubin55.silver.Application</main.class>
         <java.source-target.version>1.8</java.source-target.version>

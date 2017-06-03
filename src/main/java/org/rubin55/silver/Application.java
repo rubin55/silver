@@ -33,12 +33,14 @@ public class Application {
 
         // Build options object.
         Options options = new Options();
+        options.addOption(new Option("d", "debug", false, "Turn on debug messages."));
+
         OptionGroup group = new OptionGroup();
-        group.addOption(new Option("s", "setup", false, "Configure settings interactively."));
         group.addOption(new Option("c", "check", false, "Check configuration settings."));
         group.addOption(new Option("e", "extract", false, "Extract data from rdbms into csv files."));
-        group.addOption(new Option("l", "load", false, "Load csv files into neo4j."));
         group.addOption(new Option("h", "help", false, "Show this usage text."));
+        group.addOption(new Option("l", "load", false, "Load csv files into neo4j."));
+        group.addOption(new Option("s", "setup", false, "Configure settings interactively."));
         group.addOption(new Option("v", "version", false, "Show the version."));
         options.addOptionGroup(group);
 
@@ -54,8 +56,7 @@ public class Application {
 
             Stream<Option> stream = Arrays.stream(line.getOptions());
             stream.forEach(x -> {
-                log.debug("I got: " + x);
-                version();
+
             });
 
         } catch (ParseException e) {

@@ -61,15 +61,18 @@ public class Application {
                     Application.debug();
                     break;
                 case "check":
+                    Configuration.init();
                     Configuration.check();
                     break;
                 case "extract":
+                    Configuration.init();
                     Extractor.extract();
                     break;
                 case "help":
                     Application.help();
                     break;
                 case "load":
+                    Configuration.init();
                     Loader.load();
                     break;
                 case "setup":

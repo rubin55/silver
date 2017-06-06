@@ -17,14 +17,15 @@ class Extractor {
 
         try {
             OracleDataSource ods = new OracleDataSource();
-            ods.setURL("jdbc:oracle:thin:user/pass@host:port:sid");
+            ods.setURL(Configuration.getJdbcConnectionString());
             Connection conn = ods.getConnection();
 
             // Create Oracle DatabaseMetaData object
             DatabaseMetaData meta = conn.getMetaData();
 
             // gets driver info:
-            System.out.println("JDBC driver version is " + meta.getDriverVersion());
+            System.out.println("JDBC driver version: " + meta.getDriverVersion());
+            System.out.println("Connected to: " + meta.getDatabaseProductVersion());
         } catch (SQLException e) {
             log.error(e.getMessage());
         }

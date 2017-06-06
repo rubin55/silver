@@ -13,7 +13,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Configuration {
+enum Configuration {
+    INSTANCE;
 
     private static final Logger log = LoggerFactory.getLogger(Configuration.class);
 
@@ -45,12 +46,17 @@ class Configuration {
     private static String neo4jUser;
     private static String neo4jPass;
 
+    public static Configuration getInstance() {
+        init();
+        return Configuration.INSTANCE;
+    }
+
     public static void check() {
         log.debug("Invoking check routine");
     }
 
-    public static void init() {
-        if (!isInitialized()) {
+    private static void init() {
+        if (!initialized) {
             try {
                 log.debug("Attempting to load properties from " + configurationFile);
                 InputStream is = new FileInputStream(file);
@@ -74,13 +80,7 @@ class Configuration {
                 log.error(e.getMessage());
                 log.info("You can create a configuration file for silver by running the \"setup\" procedure");
             }
-        } else {
-            log.error("Configuration already initialized.");
         }
-    }
-
-    public static boolean isInitialized() {
-        return initialized;
     }
 
     public static void setup() {
@@ -151,15 +151,57 @@ class Configuration {
         }
     }
 
-    public static String getJdbcConnectionString() {
+    public String getJdbcConnectionString() {
         // Format is: "jdbc:oracle:thin:user/pass@host:port:sid"
         return "jdbc:" + jdbcDriver + ":thin:" + jdbcUser + "/" + jdbcPass + "@" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
     }
 
-    public static String getNeo4jConnectionString() {
+    public String getNeo4jConnectionString() {
         // Note that you can't put credentials into a neo4j connection string.
         return neo4jDriver + "://" + neo4jHost + ":" + neo4jPort;
     }
 
+    public String getJdbcDriver() {
+        return jdbcDriver;
+    }
 
+    public String getJdbcName() {
+        return jdbcName;
+    }
+
+    public String getJdbcHost() {
+        return jdbcHost;
+    }
+
+    public String getJdbcPort() {
+        return jdbcPort;
+    }
+
+    public String getJdbcUser() {
+        return jdbcUser;
+    }
+
+    public String getJdbcPass() {
+        return jdbcPass;
+    }
+
+    public String getNeo4jDriver() {
+        return neo4jDriver;
+    }
+
+    public String getNeo4jHost() {
+        return neo4jHost;
+    }
+
+    public String getNeo4jPort() {
+        return neo4jPort;
+    }
+
+    public String getNeo4jUser() {
+        return neo4jUser;
+    }
+
+    public String getNeo4jPass() {
+        return neo4jPass;
+    }
 }

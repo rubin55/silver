@@ -11,13 +11,14 @@ import oracle.jdbc.pool.OracleDataSource;
 
 class Extractor {
     private static final Logger log = LoggerFactory.getLogger(Extractor.class);
+    private static Configuration cfg = Configuration.getInstance();
 
     public static void extract() {
         log.debug("Invoking extract routine");
 
         try {
             OracleDataSource ods = new OracleDataSource();
-            ods.setURL(Configuration.getJdbcConnectionString());
+            ods.setURL(cfg.getJdbcConnectionString());
             Connection conn = ods.getConnection();
 
             // Create Oracle DatabaseMetaData object

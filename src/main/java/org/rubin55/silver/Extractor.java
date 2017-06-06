@@ -19,6 +19,8 @@ class Extractor {
         try {
             OracleDataSource ods = new OracleDataSource();
             ods.setURL(cfg.getJdbcConnectionString());
+            ods.setUser(cfg.getJdbcUser());
+            ods.setPassword(cfg.getJdbcPass());
             Connection conn = ods.getConnection();
 
             // Create Oracle DatabaseMetaData object

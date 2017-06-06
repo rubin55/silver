@@ -153,11 +153,11 @@ enum Configuration {
 
     public String getJdbcConnectionString() {
         // Format is: "jdbc:oracle:thin:user/pass@host:port:sid"
-        return "jdbc:" + jdbcDriver + ":thin:" + jdbcUser + "/" + jdbcPass + "@" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
+        //turn "jdbc:" + jdbcDriver + ":thin:" + jdbcUser + "/" + jdbcPass + "@" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
+        return "jdbc:" + jdbcDriver + ":thin:" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
     }
 
     public String getNeo4jConnectionString() {
-        // Note that you can't put credentials into a neo4j connection string.
         return neo4jDriver + "://" + neo4jHost + ":" + neo4jPort;
     }
 

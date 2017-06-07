@@ -20,19 +20,26 @@ class Loader {
         log.debug("Invoking load routine");
         log.debug("Neo4j connection string is: " + cfg.getNeo4jConnectionString());
 
-        Driver driver = GraphDatabase.driver(cfg.getNeo4jConnectionString(), AuthTokens.basic(cfg.getNeo4jUser(), cfg.getNeo4jPass()));
+        //Don't use LOAD CSV, as it cannot deal with labels from field values.
+        //Don't use neo4j-import tool, because it's an external dependency.
+
+        //Read Michaels' answer here: https://stackoverflow.com/questions/38289595/neo4j-java-bolt-create-node-is-slow-how-to-improve-it
+
+        // Implement custom CSV reader which:
+        // Inserts nodes
+        // Creates indexes
+        // Inserts relations
+
+        Driver driver = GraphDatabase.driver(cfg.getNeo4jConnectionString(),
+                AuthTokens.basic(cfg.getNeo4jUser(), cfg.getNeo4jPass()));
         Session session = driver.session();
 
-
-        //StatementResult result = session.run("MATCH (a:Person) WHERE a.name = {name} " +
-        //                                    "RETURN a.name AS name, a.title AS title",
-        //                                    parameters( "name", "Arthur" ) );
-
-        StatementResult result = session.run("MATCH (n) RETURN n");
+        StatementResult result = session.run("MATCH (n) RETURN n.name AS name");
 
         while (result.hasNext()) {
             Record record = result.next();
-            System.out.println(record.asMap().toString());
+
+            System.out.println(record.get("name").toString());
         }
 
         session.close();

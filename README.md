@@ -8,11 +8,11 @@ Silver currently knows about Oracle. The intention is to write other dataSource 
 
 Quick command-line overview:
 
-    Usage: silver <option>
-    where possible options are:
-        -setup (interactive, neo4j and rdbms settings, writes config file)
-        -check (check settings in config file, connectivity, existence and format of csv files)
-        -extract (from db to csv using jdbc, csv)
-        -load (csv into neo4j using cypher load csv)
-        -help (show commands and parameters)
-        -version (show version)
+    Usage: silver [-c | -e | -h | -l | -s | -v] [-d]
+     -c,--check     Check configuration settings.
+     -d,--debug     Turn on debug messages.
+     -e,--extract   Extract data from rdbms into csv files.
+     -h,--help      Show this usage text.
+     -l,--load      Load csv files into neo4j.
+     -s,--setup     Configure settings interactively.
+     -v,--version   Show the version.

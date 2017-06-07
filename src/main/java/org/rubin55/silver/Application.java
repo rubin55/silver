@@ -102,19 +102,13 @@ public class Application {
     }
 
     private static void version() {
-        String releaseProperties = "/release.properties";
-        log.debug("Attempting to construct version from " + releaseProperties);
         Properties properties = new Properties();
-        InputStream resourceStream = Application.class.getResourceAsStream(releaseProperties);
-        if (resourceStream == null) {
-            log.error("Sorry, unable to find " + releaseProperties);
-        }
         try {
-            properties.load(resourceStream);
+            properties.load(Configuration.openFromClassPath("release.properties"));
             System.out.println(properties.getProperty("version") + "\n" + properties.getProperty("copyright") + "\n" + properties.getProperty("license"));
 
         } catch (IOException e) {
-            log.error("Could not load " + releaseProperties);
+            log.error(e.getMessage());
         }
     }
 }

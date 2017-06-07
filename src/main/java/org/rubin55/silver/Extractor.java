@@ -1,10 +1,15 @@
 package org.rubin55.silver;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +21,6 @@ class Extractor {
     private static Configuration cfg = Configuration.getInstance();
 
     public static void extract() {
-        log.debug("Invoking extract routine");
 
         try {
             log.debug("JDBC connection string is: " + cfg.getJdbcConnectionString());
@@ -30,23 +34,60 @@ class Extractor {
             DatabaseMetaData meta = conn.getMetaData();
 
             // gets driver info:
-            System.out.println("JDBC driver version: " + meta.getDriverVersion());
-            System.out.println("Connected to: " + meta.getDatabaseProductVersion());
+            log.debug("JDBC driver version: " + meta.getDriverVersion());
+            log.info("Connected to: " + meta.getDatabaseProductVersion());
 
-            Statement stmt = conn.createStatement();
+            execute(conn, cfg.getJdbcDriver() + "-nodes.sql", "nodes.csv");
+            execute(conn, cfg.getJdbcDriver() + "-relations.sql", "relations.csv");
 
-            ResultSet rset = stmt.executeQuery("select 'Hello World' from dual");
-
-            while (rset.next()) {
-                System.out.println(rset.getString(1));
-            }
-
-            rset.close();
-            stmt.close();
             conn.close();
-
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-  }
+    }
+
+    private static void execute(Connection conn, String sqlScript, String csvFile) {
+        log.info("Executing queries from " + sqlScript + ", writing to " + cfg.getConfigurationPath() + "/" + csvFile);
+        List<String> queryList = SequelHandler.createQueriesFromFile(Configuration.openFromClassPath(sqlScript));
+        queryList.stream().forEach(x -> {
+            try {
+                log.debug("Executing query: " + x);
+                Statement stmt = conn.createStatement();
+                ResultSet rset = stmt.executeQuery(x);
+                String out = cfg.getConfigurationPath() + "/" + csvFile;
+
+                resultSetToCsv(rset, out);
+
+                rset.close();
+                stmt.close();
+            } catch (FileNotFoundException | SQLException e) {
+                log.error(e.getMessage());
+            }
+        });
+    }
+
+    private static void resultSetToCsv(ResultSet rset, String fileName) throws SQLException, FileNotFoundException {
+        PrintWriter printWriter = new PrintWriter(new File(fileName));
+        ResultSetMetaData meta = rset.getMetaData();
+        int numberOfColumns = meta.getColumnCount();
+        String dataHeaders = meta.getColumnName(1);
+
+        for (int i = 2; i < numberOfColumns + 1; i++) {
+            dataHeaders += "," + meta.getColumnName(i);
+        }
+
+        printWriter.println(dataHeaders);
+
+        while (rset.next()) {
+            String row = rset.getString(1);
+
+            for (int i = 2; i < numberOfColumns + 1; i++) {
+                row += "," + rset.getString(i);
+            }
+
+            printWriter.println(row);
+        }
+
+        printWriter.close();
+    }
 }

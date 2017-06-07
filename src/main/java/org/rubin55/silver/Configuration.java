@@ -151,12 +151,34 @@ enum Configuration {
         }
     }
 
+    public static InputStream openFromClassPath(String path) {
+        String resource;
+
+        char c = path.charAt(0);
+
+        if (c == '/' ) {
+             resource = path;
+        } else {
+            resource = "/" + path;
+        }
+
+        log.debug("Attempting to open " + resource + " from classpath");
+        InputStream is = Configuration.class.getResourceAsStream(resource);
+        if (is == null) {
+            log.error("Sorry, unable to find " + resource);
+        }
+        return is;
+    }
+
     public String getJdbcConnectionString() {
         return "jdbc:" + jdbcDriver + ":thin:@" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
     }
 
     public String getNeo4jConnectionString() {
         return neo4jDriver + "://" + neo4jHost + ":" + neo4jPort;
+    }
+    public String getConfigurationPath() {
+        return configurationPath;
     }
 
     public String getJdbcDriver() {

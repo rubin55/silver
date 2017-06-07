@@ -15,15 +15,15 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import org.slf4j.Logger;
+import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import ch.qos.logback.classic.Level;
 
 public class Application {
 
-    private static final Logger log = LoggerFactory.getLogger(Application.class);
-    private static final ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    private static final Logger log = (Logger) LoggerFactory.getLogger(Application.class);
+    private static final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
     private static Options options = new Options();
 

@@ -10,13 +10,13 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Properties;
 
-import org.slf4j.Logger;
+import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 
 enum Configuration {
     INSTANCE;
 
-    private static final Logger log = LoggerFactory.getLogger(Configuration.class);
+    private static final Logger log = (Logger) LoggerFactory.getLogger(Configuration.class);
 
     private static final String configurationPath = System.getProperty("user.home") + File.separator + ".silver";
     private static final String configurationFile = configurationPath + File.separator + "silver.properties";
@@ -152,9 +152,7 @@ enum Configuration {
     }
 
     public String getJdbcConnectionString() {
-        // Format is: "jdbc:oracle:thin:user/pass@host:port:sid"
-        //turn "jdbc:" + jdbcDriver + ":thin:" + jdbcUser + "/" + jdbcPass + "@" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
-        return "jdbc:" + jdbcDriver + ":thin:" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
+        return "jdbc:" + jdbcDriver + ":thin:@" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
     }
 
     public String getNeo4jConnectionString() {

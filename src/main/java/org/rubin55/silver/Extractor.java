@@ -48,7 +48,7 @@ class Extractor {
 
     private static void execute(Connection conn, String sqlScript, String csvFile) {
         log.info("Executing queries from " + sqlScript + ", writing to " + cfg.getConfigurationPath() + "/" + csvFile);
-        List<String> queryList = SequelHandler.createQueriesFromFile(Configuration.openFromClassPath(sqlScript));
+        List<String> queryList = SQLHelper.createQueriesFromFile(Configuration.openFromClassPath(sqlScript));
         queryList.stream().forEach(x -> {
             try {
                 log.debug("Executing query: " + x);
@@ -56,7 +56,7 @@ class Extractor {
                 ResultSet rset = stmt.executeQuery(x);
                 String out = cfg.getConfigurationPath() + "/" + csvFile;
 
-                resultSetToCsv(rset, out);
+                CSVHelper.resultSetToCsv(rset, out);
 
                 rset.close();
                 stmt.close();
@@ -64,30 +64,5 @@ class Extractor {
                 log.error(e.getMessage());
             }
         });
-    }
-
-    private static void resultSetToCsv(ResultSet rset, String fileName) throws SQLException, FileNotFoundException {
-        PrintWriter printWriter = new PrintWriter(new File(fileName));
-        ResultSetMetaData meta = rset.getMetaData();
-        int numberOfColumns = meta.getColumnCount();
-        String dataHeaders = meta.getColumnName(1);
-
-        for (int i = 2; i < numberOfColumns + 1; i++) {
-            dataHeaders += "," + meta.getColumnName(i);
-        }
-
-        printWriter.println(dataHeaders);
-
-        while (rset.next()) {
-            String row = rset.getString(1);
-
-            for (int i = 2; i < numberOfColumns + 1; i++) {
-                row += "," + rset.getString(i);
-            }
-
-            printWriter.println(row);
-        }
-
-        printWriter.close();
     }
 }

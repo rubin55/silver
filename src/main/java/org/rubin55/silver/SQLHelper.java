@@ -10,8 +10,8 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
-public class SequelHandler {
-    private static final Logger log = (Logger) LoggerFactory.getLogger(Application.class);
+public class SQLHelper {
+    private static final Logger log = (Logger) LoggerFactory.getLogger(SQLHelper.class);
 
     private static List<String> listOfQueries = null;
 

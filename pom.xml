@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.rubin55</groupId>
     <artifactId>silver</artifactId>
-    <version>0.2.0</version>
+    <version>0.4.0</version>
     <packaging>jar</packaging>
     <name>Silver</name>
     <description>A tool for loading dependency information from relational databases into Neo4j for analysis</description>

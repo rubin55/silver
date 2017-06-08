@@ -52,7 +52,7 @@ enum Configuration {
     }
 
     public static void check() {
-        log.debug("Invoking check routine");
+        log.info("Configuration check not implemented yet");
     }
 
     private static void init() {
@@ -97,7 +97,7 @@ enum Configuration {
             jdbcDriver = console.readLine("Select a JDBC driver (currently only \"oracle\" is supported): ");
             jdbcName = console.readLine("Specify the database name (i.e, the Oracle SID): ");
             jdbcHost = console.readLine("Specify the database hostname: ");
-            jdbcPort = console.readLine("Specify the port the database is listening on: ");
+            jdbcPort = console.readLine("Specify the port the database is listening on (usually \"1521\"): ");
             jdbcUser = console.readLine("Specify a username to connect to the database as: ");
             jdbcPass = new String(console.readPassword("Specify a password for the above user: "));
             System.out.println("");
@@ -143,6 +143,8 @@ enum Configuration {
 
                 OutputStream out = new FileOutputStream(file);
                 properties.store(out, "silver.properties - Configuration file for silver.");
+                log.info("Wrote configuration to " + configurationFile);
+
                 out.close();
 
             } catch (IOException e) {

@@ -8,6 +8,7 @@ import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.Transaction;
 import org.slf4j.LoggerFactory;
 
 import static org.neo4j.driver.v1.Values.parameters;
@@ -23,7 +24,11 @@ class Loader {
     private static final Logger log = (Logger) LoggerFactory.getLogger(Loader.class);
     private static Configuration cfg = Configuration.getInstance();
 
-    private static String entityLabel = "ENTITY";
+    private static final String entityLabel = "ENTITY";
+    private static final String entityVariable = entityLabel.toLowerCase();
+
+    private static int count = 0;
+    private static int total = 0;
 
     public static void load() {
         log.debug("Neo4j connection string is: " + cfg.getNeo4jConnectionString());
@@ -40,23 +45,24 @@ class Loader {
         //Read Michaels' answer here: https://stackoverflow.com/questions/38289595/neo4j-java-bolt-create-node-is-slow-how-to-improve-it
 
         try {
-            List<String[]> csvList = CSVHelper.csvToList(cfg.getConfigurationPath() + "/nodes.csv");
+            List<String[]> nodes = CSVHelper.csvToList(cfg.getConfigurationPath() + "/nodes.csv");
+            List<String[]> relations = CSVHelper.csvToList(cfg.getConfigurationPath() + "/relations.csv");
 
             // Idempotently creates constraints for csv headers suffixed with :ID
             // * Check for constraint existence with  CALL db.constraints();
-            // * If not exist, CREATE CONSTRAINT ON (entity:ENTITY) ASSERT entity.name IS UNIQUE
-            String[] headers = csvList.get(0);
-            for (String header : headers) {
-                if (header.endsWith(":ID")) {
+            // * If not exist, CREATE CONSTRAINT ON (entity:ENTITY) ASSERT entity.attribute IS UNIQUE
+            log.info("Setting up constraints and indexes");
+            String[] nodeHeaders = nodes.get(0);
+            for (String nodeHeader : nodeHeaders) {
+                if (nodeHeader.endsWith(":ID")) {
                     // This header represents an attribute which functions as an ID and should be unique
-                    String attribute = header.replace(":ID", "");
-                    String entityVariable = entityLabel.toLowerCase();
+                    String attribute = nodeHeader.replace(":ID", "");
                     String constraint = "CONSTRAINT ON ( " + entityVariable + ":" + entityLabel + " ) ASSERT "
                             + entityVariable + "." + attribute + " IS UNIQUE";
 
                     StatementResult result = session.run("CALL db.constraints()");
 
-                    List<String> constraints =  new ArrayList<String>();
+                    List<String> constraints = new ArrayList<String>();
 
                     while (result.hasNext()) {
                         Record record = result.next();
@@ -64,36 +70,87 @@ class Loader {
                     }
 
                     if (!constraints.contains(constraint)) {
-                        log.info("Creating new constraint for \"" + attribute + "\" attribute on the \"" + entityLabel + "\" label");
+                        log.info("Creating new constraint for \"" + attribute + "\" attribute on the \"" + entityLabel
+                                + "\" label");
                         session.run("CREATE " + constraint);
                     } else {
-                        log.info("Woo, found existing constraint for \"" + attribute + "\" attribute on the \"" + entityLabel + "\" label");
+                        log.info("Re-using existing constraint for \"" + attribute + "\" attribute on the \""
+                                + entityLabel + "\" label");
+                    }
+                }
+                if (nodeHeader.equals("name")) {
+                    String attribute = nodeHeader;
+                    String index = "INDEX ON :" + entityLabel + "(" + attribute + ")";
+
+                    StatementResult result = session.run("CALL db.indexes()");
+
+                    List<String> indexes = new ArrayList<String>();
+
+                    while (result.hasNext()) {
+                        Record record = result.next();
+                        indexes.add(record.get("description").asString());
+                    }
+
+                    if (!indexes.contains(index)) {
+                        log.info("Creating new index for \"" + attribute + "\" attribute on the \"" + entityLabel
+                                + "\" label");
+                        session.run("CREATE " + index);
+                    } else {
+                        log.info("Re-using existing index for \"" + attribute + "\" attribute on the \""
+                                + entityLabel + "\" label");
                     }
                 }
             }
 
-            // Idempotently inserts nodes
-            // * Read line from nodes csv
-            // MERGE (entity:Entity:labelFromValue {name:nameFromValue}) RETURN entity
+            // Remove the header from the node list.
+            nodes.remove(0);
 
-            // Idempotently inserts relations
-            // * Read line from relations csv
-            // MATCH (source:Entity {name:nameFromValue}),(target:Entity {name:nameFromValue})
-            // MERGE (source)-[r:typeFromValue]->(target)
-            // RETURN source.name, type(r), target.name
+            // Idempotently creates nodes.
+            log.info("Creating nodes..");
+            count = 0;
+            total = nodes.size();
+            nodes.stream().forEach(x -> {
+                String createNodes = "MERGE (" + entityVariable + ":" + entityLabel + ":" + x[2].replaceAll("\\s+", "_")
+                        + " {id:{id}, name:{name}})";
+                try (Transaction tx = session.beginTransaction()) {
+                    tx.run(createNodes, parameters("id", x[0], "name", x[1]));
+                    tx.success();
+                    count++;
+                    if (count % 100 == 0) {
+                        log.info("Processed " + count + "/" + total + " nodes");
+                    }
+                    if (count == total) {
+                        log.info("Finished creation of " + total + " nodes");
+                    }
+                }
+            });
+
+            // Remove the header from the relation list.
+            relations.remove(0);
+
+            // Idempotently creates relations.
+            log.info("Creating relationships..");
+            count = 0;
+            total = relations.size();
+            relations.stream().forEach(x -> {
+                String createRelations = "MATCH (source:" + entityLabel + " {id:{sourceId}}),(target:" + entityLabel
+                        + " {id:{targetId}}) MERGE (source)-[relation:" + x[1].replaceAll("\\s+", "_")
+                        + "]->(target) RETURN source.id, type(relation), target.id";
+                try (Transaction tx = session.beginTransaction()) {
+                    tx.run(createRelations, parameters("sourceId", x[0], "targetId", x[2]));
+                    tx.success();
+                    count++;
+                    if (count % 100 == 0) {
+                        log.info("Processed " + count + "/" + total + " relations");
+                    }
+                    if (count == total) {
+                        log.info("Finished creation of " + total + " relations");
+                    }
+                }
+            });
 
         } catch (FileNotFoundException e) {
             log.error(e.getMessage());
-        }
-
-
-
-        StatementResult result = session.run("MATCH (n) RETURN n.name AS name");
-
-        while (result.hasNext()) {
-            Record record = result.next();
-
-            System.out.println(record.get("name").toString());
         }
 
         session.close();

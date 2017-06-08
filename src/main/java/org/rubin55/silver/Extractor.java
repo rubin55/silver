@@ -47,14 +47,14 @@ class Extractor {
     }
 
     private static void execute(Connection conn, String sqlScript, String csvFile) {
-        log.info("Executing queries from " + sqlScript + ", writing to " + cfg.getConfigurationPath() + "/" + csvFile);
+        log.info("Executing queries from " + sqlScript + ", writing to " + cfg.getConfigurationPath() + File.separator + csvFile);
         List<String> queryList = SQLHelper.createQueriesFromFile(Configuration.openFromClassPath(sqlScript));
         queryList.stream().forEach(x -> {
             try {
                 log.debug("Executing query: " + x);
                 Statement stmt = conn.createStatement();
                 ResultSet rset = stmt.executeQuery(x);
-                String out = cfg.getConfigurationPath() + "/" + csvFile;
+                String out = cfg.getConfigurationPath() + File.separator + csvFile;
 
                 CSVHelper.resultSetToCsv(rset, out);
 

@@ -1,18 +1,19 @@
 -- nodes
 -- name:ID, :LABEL
-SELECT UNIQUE name AS "name:ID", type AS ":LABEL"
+-- need to create surrogate ids : SELECT UNIQUE name AS ":START_ID", 'REFERENCES' AS ":TYPE", referenced_name AS ":END_ID", STANDARD_HASH(name || referenced_name) AS HASH FROM dba_dependencies WHERE owner='HR';
+SELECT UNIQUE STANDARD_HASH(owner || name || type) AS "id:ID", name AS "name", type AS ":LABEL"
 FROM sys.dba_dependencies
-WHERE owner='HR' OR referenced_owner='HR'
+WHERE owner='HR'
 UNION
-SELECT UNIQUE referenced_name AS "name:ID", referenced_type AS ":LABEL"
+SELECT UNIQUE STANDARD_HASH(referenced_owner || referenced_name || referenced_type) AS "id:ID", referenced_name AS "name", referenced_type AS ":LABEL"
 FROM sys.dba_dependencies
-WHERE owner='HR' OR referenced_owner='HR'
+WHERE owner='HR'
 UNION
-SELECT UNIQUE owner AS "name:ID", 'SCHEMA' AS ":LABEL"
+SELECT UNIQUE STANDARD_HASH(owner || 'SCHEMA') AS "id:ID", owner AS "name", 'SCHEMA' AS ":LABEL"
 FROM sys.dba_dependencies
-WHERE owner='HR' OR referenced_owner='HR'
+WHERE owner='HR'
 UNION
-SELECT UNIQUE referenced_owner AS "name:ID", 'SCHEMA' AS ":LABEL"
+SELECT UNIQUE STANDARD_HASH(referenced_owner || 'SCHEMA') AS "id:ID", referenced_owner AS "name", 'SCHEMA' AS ":LABEL"
 FROM sys.dba_dependencies
-WHERE owner='HR' OR referenced_owner='HR'
+WHERE owner='HR'
 ;

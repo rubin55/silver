@@ -1,7 +1,6 @@
 package org.rubin55.silver;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.Stream;

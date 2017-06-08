@@ -13,12 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import static org.neo4j.driver.v1.Values.parameters;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 class Loader {
     private static final Logger log = (Logger) LoggerFactory.getLogger(Loader.class);
@@ -42,20 +39,16 @@ class Loader {
         // We don't use neo4j-import tool, because it's an external dependency.
         // We do however implement neo4j-import's csv format!
 
-        //Read Michaels' answer here: https://stackoverflow.com/questions/38289595/neo4j-java-bolt-create-node-is-slow-how-to-improve-it
-
         try {
             List<String[]> nodes = CSVHelper.csvToList(cfg.getConfigurationPath() + "/nodes.csv");
             List<String[]> relations = CSVHelper.csvToList(cfg.getConfigurationPath() + "/relations.csv");
 
             // Idempotently creates constraints for csv headers suffixed with :ID
-            // * Check for constraint existence with  CALL db.constraints();
-            // * If not exist, CREATE CONSTRAINT ON (entity:ENTITY) ASSERT entity.attribute IS UNIQUE
             log.info("Setting up constraints and indexes");
             String[] nodeHeaders = nodes.get(0);
             for (String nodeHeader : nodeHeaders) {
                 if (nodeHeader.endsWith(":ID")) {
-                    // This header represents an attribute which functions as an ID and should be unique
+                    // This header represents an attribute which functions as an ID and should be unique.
                     String attribute = nodeHeader.replace(":ID", "");
                     String constraint = "CONSTRAINT ON ( " + entityVariable + ":" + entityLabel + " ) ASSERT "
                             + entityVariable + "." + attribute + " IS UNIQUE";
@@ -79,6 +72,7 @@ class Loader {
                     }
                 }
                 if (nodeHeader.equals("name")) {
+                    // This header is (extremely) common and most probably requires an index.
                     String attribute = nodeHeader;
                     String index = "INDEX ON :" + entityLabel + "(" + attribute + ")";
 

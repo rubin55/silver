@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.neo4j.driver.v1.Values.parameters;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +41,8 @@ class Loader {
         // We do however implement neo4j-import's csv format!
 
         try {
-            List<String[]> nodes = CSVHelper.csvToList(cfg.getConfigurationPath() + "/nodes.csv");
-            List<String[]> relations = CSVHelper.csvToList(cfg.getConfigurationPath() + "/relations.csv");
+            List<String[]> nodes = CSVHelper.csvToList(cfg.getConfigurationPath() + File.separator + cfg.getCsvFileForNodes());
+            List<String[]> relations = CSVHelper.csvToList(cfg.getConfigurationPath() + File.separator + cfg.getCsvFileForRelations());
 
             // Idempotently creates constraints for csv headers suffixed with :ID
             log.info("Setting up constraints and indexes");

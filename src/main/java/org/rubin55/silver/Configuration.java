@@ -3,10 +3,12 @@ package org.rubin55.silver;
 import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -87,8 +89,9 @@ enum Configuration {
         log.debug("Invoking setup routine");
 
         if (file.exists()) {
-            log.error("File exists: " + configurationFile);
-            log.error("Please remove the configuration file if you want to re-setup.");
+            init(); // We init so we have initialized values.
+            log.info("File exists: " + configurationFile);
+            log.info("Please remove the configuration file if you want to re-setup.");
         } else {
             System.out.println("");
 
@@ -151,6 +154,23 @@ enum Configuration {
                 log.error(e.getMessage());
             }
         }
+
+        String sqlScriptForNodes = jdbcDriver + "-nodes.sql";
+        String sqlScriptForRelations = jdbcDriver + "-relations.sql";
+
+        copyFromClassPathToConfigDir(sqlScriptForNodes);
+        copyFromClassPathToConfigDir(sqlScriptForRelations);
+    }
+
+    public static InputStream openFromConfigDir(String file) {
+        log.debug("Attempting to open " + file + " from configuration directory");
+        InputStream is = null;
+        try {
+            is = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            log.error("Sorry, unable to find " + file);
+        }
+        return is;
     }
 
     public static InputStream openFromClassPath(String path) {
@@ -158,8 +178,8 @@ enum Configuration {
 
         char c = path.charAt(0);
 
-        if (c == '/' ) {
-             resource = path;
+        if (c == '/') {
+            resource = path;
         } else {
             resource = "/" + path;
         }
@@ -172,6 +192,22 @@ enum Configuration {
         return is;
     }
 
+    public static void copyFromClassPathToConfigDir(String fileName) {
+        File file = new File(configurationPath + File.separator + fileName);
+
+        if (!file.exists()) {
+            try {
+                InputStream inputStream = Configuration.openFromClassPath(fileName);
+                log.info("Creating " + fileName + " from template in classpath");
+                Files.copy(inputStream, file.toPath());
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
+        } else {
+            log.info(configurationPath + File.separator + fileName + " found, not overwriting");
+        }
+    }
+
     public String getJdbcConnectionString() {
         return "jdbc:" + jdbcDriver + ":thin:@" + jdbcHost + ":" + jdbcPort + ":" + jdbcName;
     }
@@ -179,6 +215,7 @@ enum Configuration {
     public String getNeo4jConnectionString() {
         return neo4jDriver + "://" + neo4jHost + ":" + neo4jPort;
     }
+
     public String getConfigurationPath() {
         return configurationPath;
     }
@@ -225,5 +262,21 @@ enum Configuration {
 
     public String getNeo4jPass() {
         return neo4jPass;
+    }
+
+    public String getSqlScriptForNodes() {
+        return jdbcDriver + "-nodes.sql";
+    }
+
+    public String getSqlScriptForRelations() {
+        return jdbcDriver + "-relations.sql";
+    }
+
+    public String getCsvFileForNodes() {
+        return jdbcDriver + "-nodes.csv";
+    }
+
+    public String getCsvFileForRelations() {
+        return jdbcDriver + "-relations.csv";
     }
 }

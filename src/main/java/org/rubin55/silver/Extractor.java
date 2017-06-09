@@ -2,6 +2,11 @@ package org.rubin55.silver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -35,8 +40,8 @@ class Extractor {
             log.debug("JDBC driver version: " + meta.getDriverVersion());
             log.info("Connected to: " + meta.getDatabaseProductVersion());
 
-            execute(conn, cfg.getJdbcDriver() + "-nodes.sql", "nodes.csv");
-            execute(conn, cfg.getJdbcDriver() + "-relations.sql", "relations.csv");
+            execute(conn, cfg.getSqlScriptForNodes(), cfg.getCsvFileForNodes());
+            execute(conn, cfg.getSqlScriptForRelations(), cfg.getCsvFileForRelations());
 
             conn.close();
         } catch (SQLException e) {
@@ -46,7 +51,8 @@ class Extractor {
 
     private static void execute(Connection conn, String sqlScript, String csvFile) {
         log.info("Executing queries from " + sqlScript + ", writing to " + cfg.getConfigurationPath() + File.separator + csvFile);
-        List<String> queryList = SQLHelper.createQueriesFromFile(Configuration.openFromClassPath(sqlScript));
+
+        List<String> queryList = SQLHelper.createQueriesFromFile(Configuration.openFromConfigDir(sqlScript));
         queryList.stream().forEach(x -> {
             try {
                 log.debug("Executing query: " + x);

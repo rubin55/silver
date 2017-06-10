@@ -166,7 +166,7 @@ enum Configuration {
         log.debug("Attempting to open " + file + " from configuration directory");
         InputStream is = null;
         try {
-            is = new FileInputStream(file);
+            is = new FileInputStream(configurationPath + File.separator + file);
         } catch (FileNotFoundException e) {
             log.error("Sorry, unable to find " + file);
         }

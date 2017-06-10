@@ -105,10 +105,13 @@ class Loader {
             count = 0;
             total = nodes.size();
             nodes.stream().forEach(x -> {
-                String createNodes = "MERGE (" + entityVariable + ":" + entityLabel + ":" + x[2].replaceAll("\\s+", "_")
+                String id = x[0];
+                String name = x[1];
+                String label = x[2].replaceAll("\\s+", "").replaceAll("-", "");
+                String createNodes = "MERGE (" + entityVariable + ":" + entityLabel + ":" + label
                         + " {id:{id}, name:{name}})";
                 try (Transaction tx = session.beginTransaction()) {
-                    tx.run(createNodes, parameters("id", x[0], "name", x[1]));
+                    tx.run(createNodes, parameters("id", id, "name", name));
                     tx.success();
                     count++;
                     if (count % 100 == 0) {
@@ -128,11 +131,14 @@ class Loader {
             count = 0;
             total = relations.size();
             relations.stream().forEach(x -> {
+                String sourceId = x[0];
+                String relationType = x[1];
+                String targetId = x[2];
                 String createRelations = "MATCH (source:" + entityLabel + " {id:{sourceId}}),(target:" + entityLabel
-                        + " {id:{targetId}}) MERGE (source)-[relation:" + x[1].replaceAll("\\s+", "_")
+                        + " {id:{targetId}}) MERGE (source)-[relation:" + relationType
                         + "]->(target) RETURN source.id, type(relation), target.id";
                 try (Transaction tx = session.beginTransaction()) {
-                    tx.run(createRelations, parameters("sourceId", x[0], "targetId", x[2]));
+                    tx.run(createRelations, parameters("sourceId", sourceId, "targetId", targetId));
                     tx.success();
                     count++;
                     if (count % 100 == 0) {

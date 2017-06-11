@@ -1,5 +1,11 @@
 -- nodes
 -- id:ID, name, :LABEL
+SELECT UNIQUE STANDARD_HASH(owner || object_name || object_type) AS "id:ID", object_name AS "name", object_type AS ":LABEL"
+FROM sys.dba_objects
+UNION
+SELECT UNIQUE STANDARD_HASH(owner || 'SCHEMA') AS "id:ID", owner AS "name", 'SCHEMA' AS ":LABEL"
+FROM sys.dba_objects
+UNION
 SELECT UNIQUE STANDARD_HASH(owner || name || type) AS "id:ID", name AS "name", type AS ":LABEL"
 FROM sys.dba_dependencies
 UNION

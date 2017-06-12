@@ -79,6 +79,19 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <targetPath>${project.build.directory}</targetPath>
+                <includes>
+                    <include>cypher-recipes.cql</include>
+                    <include>example-nodes.csv</include>
+                    <include>example-relations.csv</include>
+                    <include>LICENSE.md</include>
+                    <include>README.md</include>
+                    <include>silver.bat</include>
+                    <include>silver.sh</include>
+                </includes>
+            </resource>
         </resources>
         <plugins>
             <plugin>

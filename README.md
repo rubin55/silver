@@ -23,3 +23,10 @@ Essentially, a typical `silver` session would be to first run `--setup` which in
 After setup, you first run `--extract` which creates a couple of CSV files after which you can `--load` the data into a Neo4j graph database (note that the CSV files are also compatible with Neo4j's `neo4j-import` tool).
 
 You can peruse the queries in the `cypher-recipes.cql` file included in the repository. The comments tell you what the query does. You can execute these queries using the Neo4j web interface usually located at http://localhost:7474/ or via the `cypher-shell` utility.
+
+Note: if you simply want to play with a (very) simple model, and see how the queries work, run the `--setup` procedure and provide "fake" data for the RDBMS connection data, but do provide "valid" data for the Neo4j part. After that you can copy:
+
+* `example-nodes.csv` to `$HOME/.silver/oracle-nodes.csv`
+* `example-relations.csv` to `$HOME/.silver/oracle-relations.csv`
+
+Finally, simply run `--load` and the example data will be loaded into your graph. The queries in `cypher-recipes.cql` work with this dataset.

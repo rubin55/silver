@@ -2,11 +2,12 @@
 
 A tool for loading relational/dependency information from relational database systems into Neo4j for analysis and visualization.
 
-The name "silver" is a word formed from the two-three-letter short form "relvis", which stands for RELation VISualization. Silver essentially creates Neo4j specific CSV files for relations (edges) between entities (vertexes) which can be either off-line batch-loaded or Cypher LOAD CSV'ed into Neo4j. The resulting model gives you a clear view on how various database objects are inter-related and owned.
+The name "silver" is a word formed from the two-three-letter short form "relvis", which stands for RELation VISualization. Silver essentially creates Neo4j import tool compatible CSV files for relations (edges) between entities (vertexes) which can be loaded by `silver` itself or by the `neo4j-import` tool. The resulting model gives you a clear view on how various database objects are interrelated and owned.
 
 Silver currently knows about Oracle. The intention is to write other dataSource handlers that can do the same for PostgreSQL, MySQL and DB2.
 
-Quick command-line overview:
+## Quick command-line overview
+See here the help output of silver when run without any arguments:
 
     Usage: silver [-c | -e | -h | -l | -s | -v] [-d]
      -c,--check     Check configuration settings.
@@ -16,3 +17,9 @@ Quick command-line overview:
      -l,--load      Load csv files into neo4j.
      -s,--setup     Configure settings interactively.
      -v,--version   Show the version.
+
+Essentially, a typical `silver` session would be to first run `--setup` which interactively sets up a configuration for you. The configuration contains connection parameters for the relational database from where silver extracts the model information, and for the Neo4j graph database to use for loading the model.
+
+After setup, you first run `--extract` which creates a couple of CSV files after which you can `--load` the data into a Neo4j graph database (note that the CSV files are also compatible with Neo4j's `neo4j-import` tool).
+
+You can peruse the queries in the `cypher-recipes.cql` file included in the repository. The comments tell you what the query does. You can execute these queries using the Neo4j web interface usually located at http://localhost:7474/ or via the `cypher-shell` utility.

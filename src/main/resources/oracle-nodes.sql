@@ -6,10 +6,10 @@ UNION
 SELECT UNIQUE STANDARD_HASH(owner || 'SCHEMA') AS "id:ID", owner AS "name", 'SCHEMA' AS ":LABEL"
 FROM sys.dba_objects
 UNION
-SELECT UNIQUE STANDARD_HASH(owner || name || type) AS "id:ID", name AS "name", type AS ":LABEL"
+SELECT UNIQUE STANDARD_HASH(owner || name || REPLACE(type, 'EVALUATION CONTXT', 'EVALUATION CONTEXT')) AS "id:ID", name AS "name", REPLACE(type, 'EVALUATION CONTXT', 'EVALUATION CONTEXT') AS ":LABEL"
 FROM sys.dba_dependencies
 UNION
-SELECT UNIQUE STANDARD_HASH(referenced_owner || referenced_name || referenced_type) AS "id:ID", referenced_name AS "name", referenced_type AS ":LABEL"
+SELECT UNIQUE STANDARD_HASH(referenced_owner || referenced_name || REPLACE(referenced_type, 'EVALUATION CONTXT', 'EVALUATION CONTEXT')) AS "id:ID", referenced_name AS "name", REPLACE(referenced_type, 'EVALUATION CONTXT', 'EVALUATION CONTEXT') AS ":LABEL"
 FROM sys.dba_dependencies
 UNION
 SELECT UNIQUE STANDARD_HASH(owner || 'SCHEMA') AS "id:ID", owner AS "name", 'SCHEMA' AS ":LABEL"

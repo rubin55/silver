@@ -6,6 +6,10 @@ The name "silver" is a word formed from the two-three-letter short form "relvis"
 
 Silver currently knows about Oracle. The intention is to write other dataSource handlers that can do the same for PostgreSQL, MySQL and DB2.
 
+## Getting silver
+
+You can download a pre-built release [from the release page here](https://github.com/rubin55/silver/releases).
+
 ## Quick command-line overview
 See here the help output of silver when run without any arguments:
 

@@ -104,10 +104,10 @@ class Loader {
             log.info("Creating nodes..");
             count = 0;
             total = nodes.size();
-            nodes.stream().forEach(x -> {
-                String id = x[0];
-                String name = x[1];
-                String label = x[2].replaceAll("\\s+", "").replaceAll("-", "");
+            for (String[] node : nodes) {
+                String id = node[0];
+                String name = node[1];
+                String label = node[2].replaceAll("\\s+", "").replaceAll("-", "");
                 String createNodes = "MERGE (" + entityVariable + ":" + entityLabel + ":" + label
                         + " {id:{id}, name:{name}})";
                 try (Transaction tx = session.beginTransaction()) {
@@ -121,7 +121,7 @@ class Loader {
                         log.info("Finished creation of " + total + " nodes");
                     }
                 }
-            });
+            };
 
             // Remove the header from the relation list.
             relations.remove(0);
@@ -130,10 +130,10 @@ class Loader {
             log.info("Creating relationships..");
             count = 0;
             total = relations.size();
-            relations.stream().forEach(x -> {
-                String sourceId = x[0];
-                String relationType = x[1];
-                String targetId = x[2];
+            for (String[] relation : relations) {
+                String sourceId = relation[0];
+                String relationType = relation[1];
+                String targetId = relation[2];
                 String createRelations = "MATCH (source:" + entityLabel + " {id:{sourceId}}),(target:" + entityLabel
                         + " {id:{targetId}}) MERGE (source)-[relation:" + relationType
                         + "]->(target) RETURN source.id, type(relation), target.id";
@@ -148,7 +148,7 @@ class Loader {
                         log.info("Finished creation of " + total + " relations");
                     }
                 }
-            });
+            };
 
         } catch (FileNotFoundException e) {
             log.error(e.getMessage());

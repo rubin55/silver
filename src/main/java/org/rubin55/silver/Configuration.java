@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Properties;
 
 import ch.qos.logback.classic.Logger;
@@ -55,6 +55,12 @@ enum Configuration {
 
     public static void check() {
         log.info("Configuration check not implemented yet");
+    }
+
+    private static String starString(int n){
+        char[] chars = new char[n];
+        Arrays.fill(chars, '*');
+        return new String(chars);
     }
 
     private static void init() {
@@ -118,13 +124,13 @@ enum Configuration {
             log.debug("jdbcHost: " + jdbcHost);
             log.debug("jdbcPort: " + jdbcPort);
             log.debug("jdbcUser: " + jdbcUser);
-            log.debug("jdbcPass: " + String.join("", Collections.nCopies(jdbcPass.length(), "*")));
+            log.debug("jdbcPass: " + starString(jdbcPass.length()));
 
             log.debug("neo4jDriver: " + neo4jDriver);
             log.debug("neo4jHost: " + neo4jHost);
             log.debug("neo4jPort: " + neo4jPort);
             log.debug("neo4jUser: " + neo4jUser);
-            log.debug("neo4jPass: " + String.join("", Collections.nCopies(neo4jPass.length(), "*")));
+            log.debug("neo4jPass: " + starString(jdbcPass.length()));
 
             try {
                 log.debug("Creating new configuration file: " + configurationFile);

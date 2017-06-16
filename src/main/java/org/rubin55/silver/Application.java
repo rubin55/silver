@@ -1,9 +1,7 @@
 package org.rubin55.silver;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -53,9 +51,8 @@ public class Application {
                 throw new ParseException("Please specify an option");
             }
 
-            Stream<Option> stream = Arrays.stream(line.getOptions());
-            stream.forEach(x -> {
-                switch (x.getLongOpt()) {
+            for (Option option : line.getOptions()) {
+                switch (option.getLongOpt()) {
                 case "debug":
                     Application.debug();
                     break;
@@ -77,10 +74,9 @@ public class Application {
                 case "version":
                     Application.version();
                     break;
-
                 }
 
-            });
+            };
 
         } catch (ParseException e) {
             log.error(e.getMessage());

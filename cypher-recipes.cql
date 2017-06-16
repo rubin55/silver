@@ -39,12 +39,12 @@ UNWIND temp AS type RETURN schema,type, SUM(tempCnt) AS count ORDER BY count DES
 // Find (indirect) relationships (dependencies) from a schema to any other schema, ignore PUBLIC and SYS.
 MATCH (sourceSchema:SCHEMA)-[:OWNS]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:OWNS]-(targetSchema:SCHEMA)
 WHERE sourceSchema.name <> targetSchema.name
-AND NOT sourceSchema.name="PUBLIC" AND NOT targetSchema.name="PUBLIC"
-AND NOT sourceSchema.name="SYS" AND NOT targetSchema.name="SYS"
-WITH sourceSchema, targetSchema
+WITH sourceSchema, targetSchema,
+filter(x IN (collect(distinct targetSchema.name)) WHERE NOT x="PUBLIC" AND NOT x="SYS")[0] AS dependsOn
 ORDER BY targetSchema.name
-RETURN sourceSchema.name AS schema,
-collect(distinct targetSchema.name) AS dependsOn
+WHERE dependsOn <> []
+RETURN DISTINCT sourceSchema.name AS schema,
+collect(distinct dependsOn)
 ORDER BY sourceSchema.name
 
 // Find (indirect) relationships (dependencies) from a schema to any other schema and show object types + reference count, ignore PUBLIC and SYS.

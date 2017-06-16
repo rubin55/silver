@@ -2,11 +2,6 @@ package org.rubin55.silver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -53,11 +48,11 @@ class Extractor {
         log.info("Executing queries from " + sqlScript + ", writing to " + cfg.getConfigurationPath() + File.separator + csvFile);
 
         List<String> queryList = SQLHelper.createQueriesFromFile(Configuration.openFromConfigDir(sqlScript));
-        queryList.stream().forEach(x -> {
+        for (String query : queryList) {
             try {
-                log.debug("Executing query: " + x);
+                log.debug("Executing query: " + query);
                 Statement stmt = conn.createStatement();
-                ResultSet rset = stmt.executeQuery(x);
+                ResultSet rset = stmt.executeQuery(query);
                 String out = cfg.getConfigurationPath() + File.separator + csvFile;
 
                 CSVHelper.resultSetToCsv(rset, out);
@@ -67,6 +62,6 @@ class Extractor {
             } catch (FileNotFoundException | SQLException e) {
                 log.error(e.getMessage());
             }
-        });
+        }
     }
 }

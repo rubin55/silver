@@ -36,7 +36,7 @@ schema.name AS schema,
 COUNT(object) AS tempCnt
 UNWIND temp AS type RETURN schema,type, SUM(tempCnt) AS count ORDER BY count DESC
 
-// Find (indirect) relationships (dependencies) from a schema to any other schema.
+// Find (indirect) relationships (dependencies) from a schema to any other schema (and remove PUBLIC + SYS from dependsOn).
 MATCH (sourceSchema:SCHEMA)-[:OWNS]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:OWNS]-(targetSchema:SCHEMA)
 WHERE sourceSchema.name <> targetSchema.name
 WITH sourceSchema, targetSchema,
@@ -47,18 +47,8 @@ RETURN DISTINCT sourceSchema.name AS schema,
 collect(distinct dependsOn)
 ORDER BY sourceSchema.name
 
-// Find (indirect) relationships (dependencies) from a schema to any other schema and show object types + reference count, ignore PUBLIC and SYS.
+// Find (indirect) relationships (dependencies) from a schema to any other schema and show object from+to information.
 MATCH (sourceSchema:SCHEMA)-[:OWNS]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:OWNS]-(targetSchema)
-WHERE sourceSchema <> targetSchema
-AND NOT sourceSchema.name="PUBLIC" AND NOT targetSchema.name="PUBLIC"
-AND NOT sourceSchema.name="SYS" AND NOT targetSchema.name="SYS"
-RETURN DISTINCT sourceSchema.name AS schema,
-filter(x IN (labels(objectOwnedBySource)) WHERE NOT x="ENTITY")[0] AS type,
-count(*) AS references
-ORDER BY references DESC
-
-// Find (direct) relationships (dependencies) from a schema to any other schema and show object from+to information, ignore PUBLIC and SYS.
-MATCH (sourceSchema:SCHEMA {name:"P1AFWA"})-[:OWNS]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:OWNS]-(targetSchema)
 WHERE sourceSchema.name <> targetSchema.name
 WITH sourceSchema, targetSchema, objectOwnedBySource, objectOwnedByTarget,
 filter(x IN (labels(objectOwnedBySource)) WHERE NOT x="ENTITY")[0] AS sourceType,

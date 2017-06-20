@@ -21,14 +21,15 @@ RETURN count(n)
 MATCH (n) DETACH DELETE n
 
 // Show count of objects per label.
-MATCH (n) WITH DISTINCT LABELS(n) AS temp, COUNT(n) AS tempCnt UNWIND temp AS type RETURN type, SUM(tempCnt) AS count ORDER BY type
+MATCH (n) WITH DISTINCT labels(n) AS temp, count(n) AS tempCnt UNWIND temp AS type
+RETURN type, sum(tempCnt) AS count ORDER BY count DESC
 
 // Find a schema by name and traverse its relations.
 MATCH (sourceSchema:SCHEMA {name:"FOO"})-[:OWNS]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:OWNS]-(targetSchema:SCHEMA)
 WHERE sourceSchema.name <> targetSchema.name
 RETURN sourceSchema,objectOwnedBySource,objectOwnedByTarget,targetSchema
 
-// Show count of object types owned per schema.
+// Show count of object types owned per schema, ignore PUBLIC and SYS.
 MATCH (object)<-[:OWNS]-(schema:SCHEMA)
 WHERE NOT schema.name="PUBLIC" AND NOT schema.name="SYS"
 WITH DISTINCT filter(x IN (labels(object)) WHERE NOT x="ENTITY") AS temp,
@@ -48,7 +49,7 @@ collect(distinct dependsOn)
 ORDER BY sourceSchema.name
 
 // Find (indirect) relationships (dependencies) from a schema to any other schema and show object from+to information.
-MATCH (sourceSchema:SCHEMA)-[:OWNS]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:OWNS]-(targetSchema)
+MATCH (sourceSchema:SCHEMA)-[:OWNS]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:OWNS]-(targetSchema:SCHEMA)
 WHERE sourceSchema.name <> targetSchema.name
 WITH sourceSchema, targetSchema, objectOwnedBySource, objectOwnedByTarget,
 filter(x IN (labels(objectOwnedBySource)) WHERE NOT x="ENTITY")[0] AS sourceType,

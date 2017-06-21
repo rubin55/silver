@@ -62,3 +62,24 @@ objectOwnedByTarget.name AS targetObject,
 targetType,
 count(*) AS references
 ORDER BY sourceSchema,targetSchema
+
+// Create a list of schemas with a complexity indication by counting objects of a certain type.
+MATCH
+  (schema:SCHEMA)-[:OWNS]->(object)
+WITH
+  schema.name as schema,
+  object.name as object,
+  filter(label IN (labels(object))
+    WHERE label="FUNCTION"
+    OR label="PACKAGE"
+    OR label="PROCEDURE"
+    OR label="TABLE"
+    OR label="TRIGGER"
+    OR label="TYPE"
+    OR label="VIEW"
+  ) AS temp UNWIND temp AS type
+RETURN
+  schema,
+  count(object) AS score
+ORDER BY
+  score DESC

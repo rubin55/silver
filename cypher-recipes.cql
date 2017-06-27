@@ -83,3 +83,26 @@ RETURN
   count(object) AS score
 ORDER BY
   score DESC
+
+
+// Show business domain to schema relations.
+// Note: requires you to load and relate DOMAIN type objects in addition to objects loaded from the database.
+MATCH (sourceDomain:DOMAIN)-[:USES]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:OWNS]-(targetSchema:SCHEMA)
+WITH sourceDomain, targetSchema,
+filter(x IN (collect(distinct targetSchema.name)) WHERE NOT x="PUBLIC" AND NOT x="SYS")[0] AS dependsOn
+ORDER BY targetSchema.name
+WHERE dependsOn <> []
+RETURN DISTINCT sourceDomain.name AS domain,
+collect(distinct dependsOn) AS schemas
+ORDER BY sourceDomain.name
+
+// Show schema to business domain relations.
+// Note: requires you to load and relate DOMAIN type objects in addition to objects loaded from the database.
+MATCH (sourceSchema:SCHEMA)-[:OWNS]->(objectOwnedBySource)-[:REFERENCES*..]->(objectOwnedByTarget)<-[:USES]-(targetDomain:DOMAIN)
+WITH sourceSchema, targetDomain,
+filter(x IN (collect(distinct targetDomain.name)) WHERE NOT x="PUBLIC" AND NOT x="SYS")[0] AS dependsOn
+ORDER BY sourceSchema.name
+WHERE dependsOn <> []
+RETURN DISTINCT sourceSchema.name AS schema,
+collect(distinct dependsOn) AS domains
+ORDER BY sourceSchema.name

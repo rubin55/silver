@@ -106,3 +106,18 @@ WHERE dependsOn <> []
 RETURN DISTINCT sourceSchema.name AS schema,
 collect(distinct dependsOn) AS domains
 ORDER BY sourceSchema.name
+
+// Show domain to domain dependencies
+MATCH (sourceDomain:DOMAIN)-[:USES {quantifier:"owner"}]->(objectUsedBySource)-[:REFERENCES*..]->(objectUsedByTarget)<-[:USES]-(targetDomain:DOMAIN)
+WHERE sourceDomain.name <> targetDomain.name
+WITH sourceDomain, targetDomain,
+filter(x IN (collect(distinct targetDomain.name)) WHERE NOT x="PUBLIC" AND NOT x="SYS")[0] AS dependsOn
+ORDER BY targetDomain.name
+WHERE dependsOn <> []
+RETURN DISTINCT sourceDomain.name AS domain,
+collect(distinct dependsOn) as dependsOn
+ORDER BY sourceDomain.name
+
+
+//Add a quantifier attribute with a value to a relation.
+MATCH (a:ENTITY)-[r:USES]->(b:ENTITY) WHERE NOT exists(r.quantifier) SET r.quantifier = 'owner'
